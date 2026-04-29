@@ -1,0 +1,9 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/push-tidbyt",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}
+
