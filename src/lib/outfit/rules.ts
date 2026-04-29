@@ -1,16 +1,44 @@
-import type { ClothingItem, WeatherSnapshot } from "@/lib/types";
+import type { ClothingItem, TempBand, WeatherSnapshot } from "@/lib/types";
+
+// Ideal warmth score midpoint per temperature band
+const IDEAL_WARMTH: Record<TempBand, number> = {
+  freezing: 9,
+  cold: 7,
+  mild: 4,
+  warm: 2,
+};
+
+function resolveTempBand(weather: WeatherSnapshot): TempBand {
+  return weather.tempBand ?? (weather.isCold ? "cold" : "mild");
+}
 
 export function scoreItem(item: ClothingItem, weather: WeatherSnapshot) {
+  const band = resolveTempBand(weather);
   let score = 0;
-  const targetWarmth = weather.isCold ? 8 : 4;
-  score += 20 - Math.abs(item.warmthScore - targetWarmth) * 2;
 
-  if (weather.isCold && (item.season === "fall" || item.season === "winter")) {
-    score += 6;
+  // If the item has an AI-inferred warmth score, use distance from ideal
+  if (item.warmthScore != null) {
+    const distance = Math.abs(item.warmthScore - IDEAL_WARMTH[band]);
+    score += Math.max(0, 15 - distance * 3);
+  } else {
+    // Fallback: category-based scoring
+    if (band === "freezing") {
+      if (item.category === "pants") score += 10;
+      if (item.category === "long_sleeve") score += 10;
+      if (item.category === "outerwear") score += 12;
+    } else if (band === "cold") {
+      if (item.category === "pants") score += 8;
+      if (item.category === "long_sleeve") score += 8;
+      if (item.category === "outerwear") score += 4;
+    } else if (band === "warm") {
+      if (item.category === "shorts") score += 10;
+      if (item.category === "short_sleeve") score += 10;
+      if (item.category === "outerwear") score -= 15;
+    }
+    // mild: no category-based bonus — let color/rotation decide
   }
-  if (!weather.isCold && (item.season === "spring" || item.season === "summer")) {
-    score += 6;
-  }
+
+  // Rain bonus for boots
   if (weather.condition === "Rainy" && item.category === "shoes") {
     score += item.style.toLowerCase().includes("boot") ? 5 : -2;
   }
@@ -19,12 +47,9 @@ export function scoreItem(item: ClothingItem, weather: WeatherSnapshot) {
 }
 
 export function isColorCompatible(topColor: string, bottomColor: string) {
-  const neutral = new Set(["black", "white", "gray", "blue", "navy", "tan", "brown"]);
+  const neutral = new Set(["black", "white", "gray", "blue", "navy", "tan", "brown", "beige", "khaki", "grey", "cream"]);
   const top = topColor.toLowerCase();
   const bottom = bottomColor.toLowerCase();
-  if (top === bottom) {
-    return true;
-  }
+  if (top === bottom) return true;
   return neutral.has(top) || neutral.has(bottom);
 }
-

@@ -1,4 +1,4 @@
-import type { WeatherSnapshot } from "@/lib/types";
+import type { TempBand, WeatherSnapshot } from "@/lib/types";
 
 const OPEN_METEO_BASE = "https://api.open-meteo.com/v1/forecast";
 
@@ -8,6 +8,13 @@ function getLocation() {
     return { lat: "40.7128", lon: "-74.0060", label: "Home" };
   }
   return { lat, lon, label };
+}
+
+function getTempBand(tempF: number): TempBand {
+  if (tempF < 45) return "freezing";
+  if (tempF < 60) return "cold";
+  if (tempF < 75) return "mild";
+  return "warm";
 }
 
 export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
@@ -35,6 +42,6 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     tempF,
     condition,
     isCold: tempF < 60,
+    tempBand: getTempBand(tempF),
   };
 }
-

@@ -1,47 +1,67 @@
 import { describe, expect, it } from "vitest";
 import { isColorCompatible, scoreItem } from "./rules";
+import type { ClothingItem } from "@/lib/types";
+
+function makeItem(overrides: Partial<ClothingItem>): ClothingItem {
+  return {
+    id: 1,
+    name: "Test Item",
+    category: "pants",
+    imageUrl: "x",
+    color: "Black",
+    style: "casual",
+    warmthScore: null,
+    description: null,
+    active: true,
+    createdAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
 
 describe("outfit rules", () => {
   it("considers neutral colors compatible", () => {
     expect(isColorCompatible("Black", "Red")).toBe(true);
-    expect(isColorCompatible("Green", "Navy")).toBe(true);
+    expect(isColorCompatible("Navy", "Green")).toBe(true);
     expect(isColorCompatible("Pink", "Orange")).toBe(false);
   });
 
-  it("prefers warmer items in cold weather", () => {
-    const warmScore = scoreItem(
-      {
-        id: 1,
-        name: "Wool Coat",
-        category: "top",
-        imageUrl: "x",
-        warmthScore: 9,
-        color: "Black",
-        style: "Coat",
-        season: "winter",
-        active: true,
-        createdAt: new Date().toISOString(),
-      },
-      { location: "Home", tempF: 40, condition: "Cloudy", isCold: true },
-    );
+  it("prefers pants and long sleeves in cold weather (category-based)", () => {
+    const weather = { location: "Home", tempF: 50, condition: "Cloudy", isCold: true, tempBand: "cold" as const };
+    const pants = makeItem({ category: "pants" });
+    const shorts = makeItem({ category: "shorts" });
+    expect(scoreItem(pants, weather)).toBeGreaterThan(scoreItem(shorts, weather));
+  });
 
-    const lightScore = scoreItem(
-      {
-        id: 2,
-        name: "Linen Shirt",
-        category: "shirt",
-        imageUrl: "x",
-        warmthScore: 3,
-        color: "White",
-        style: "Linen",
-        season: "summer",
-        active: true,
-        createdAt: new Date().toISOString(),
-      },
-      { location: "Home", tempF: 40, condition: "Cloudy", isCold: true },
-    );
+  it("prefers shorts and short sleeves in warm weather (category-based)", () => {
+    const weather = { location: "Home", tempF: 85, condition: "Clear", isCold: false, tempBand: "warm" as const };
+    const shorts = makeItem({ category: "shorts" });
+    const pants = makeItem({ category: "pants" });
+    expect(scoreItem(shorts, weather)).toBeGreaterThan(scoreItem(pants, weather));
+  });
 
-    expect(warmScore).toBeGreaterThan(lightScore);
+  it("heavily penalizes outerwear in warm weather", () => {
+    const weather = { location: "Home", tempF: 85, condition: "Clear", isCold: false, tempBand: "warm" as const };
+    const outer = makeItem({ category: "outerwear" });
+    expect(scoreItem(outer, weather)).toBeLessThan(0);
+  });
+
+  it("rewards outerwear in freezing weather", () => {
+    const weather = { location: "Home", tempF: 30, condition: "Clear", isCold: true, tempBand: "freezing" as const };
+    const outer = makeItem({ category: "outerwear" });
+    expect(scoreItem(outer, weather)).toBeGreaterThan(0);
+  });
+
+  it("uses warmthScore distance from ideal when available", () => {
+    const weather = { location: "Home", tempF: 30, condition: "Clear", isCold: true, tempBand: "freezing" as const };
+    const heavy = makeItem({ warmthScore: 9 }); // ideal for freezing is 9
+    const light = makeItem({ warmthScore: 2 }); // far from ideal
+    expect(scoreItem(heavy, weather)).toBeGreaterThan(scoreItem(light, weather));
+  });
+
+  it("gives boots a rainy weather bonus", () => {
+    const weather = { location: "Home", tempF: 60, condition: "Rainy", isCold: false, tempBand: "mild" as const };
+    const boots = makeItem({ category: "shoes", style: "rain boots" });
+    const sneakers = makeItem({ category: "shoes", style: "casual" });
+    expect(scoreItem(boots, weather)).toBeGreaterThan(scoreItem(sneakers, weather));
   });
 });
-
