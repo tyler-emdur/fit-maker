@@ -17,9 +17,13 @@ export async function getOrCreateTodayOutfit() {
     condition: "Unknown",
     isCold: false,
   }));
-  const generated = await generateOutfit(weather, "auto");
-  const id = await insertOutfit(generated);
-  return { ...generated, id, createdAt: new Date().toISOString() };
+  try {
+    const generated = await generateOutfit(weather, "auto");
+    const id = await insertOutfit(generated);
+    return { ...generated, id, createdAt: new Date().toISOString() };
+  } catch {
+    return null;
+  }
 }
 
 export async function regenerateTodayOutfit() {

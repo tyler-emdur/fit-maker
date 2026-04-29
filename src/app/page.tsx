@@ -9,6 +9,43 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const outfit = await getOrCreateTodayOutfit();
+
+  const header = (
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 className="text-2xl font-semibold">Fit Maker</h1>
+        <p className="text-sm text-zinc-500">Private weather-aware outfit planner.</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <Link className="rounded-md border px-3 py-1 text-sm" href="/closet">
+          Closet
+        </Link>
+        <LogoutButton />
+      </div>
+    </header>
+  );
+
+  if (!outfit) {
+    return (
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+        {header}
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-white p-12 text-center shadow-sm">
+          <p className="text-4xl">👔</p>
+          <h2 className="mt-4 text-lg font-semibold">Your closet is empty</h2>
+          <p className="mt-2 text-sm text-zinc-500">
+            Add some clothes to your closet and we&apos;ll build your first outfit.
+          </p>
+          <Link
+            href="/closet"
+            className="mt-6 rounded-md bg-black px-5 py-2 text-sm font-medium text-white hover:bg-zinc-800 transition-colors"
+          >
+            Go to Closet
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   const ids = [outfit.topItemId, outfit.shirtItemId, outfit.bottomItemId, outfit.shoesItemId].filter(
     (value): value is number => value !== null,
   );
@@ -17,19 +54,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Fit Maker</h1>
-          <p className="text-sm text-zinc-500">Private weather-aware outfit planner.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link className="rounded-md border px-3 py-1 text-sm" href="/closet">
-            Closet
-          </Link>
-          <LogoutButton />
-        </div>
-      </header>
-
+      {header}
       <OutfitCard outfit={outfit} itemsById={itemsById} />
       <RegenerateButton />
     </main>

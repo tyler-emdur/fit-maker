@@ -3,6 +3,22 @@ import { z } from "zod";
 import { updateItem } from "@/lib/db/client";
 import { categories } from "@/lib/types";
 
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
+  const numericId = Number.parseInt(id, 10);
+  if (Number.isNaN(numericId)) {
+    return NextResponse.json({ error: "Invalid ID." }, { status: 400 });
+  }
+  const success = await updateItem(numericId, { active: false });
+  if (!success) {
+    return NextResponse.json({ error: "Item not found." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
 const updateSchema = z.object({
   name: z.string().min(1).optional(),
   category: z.enum(categories).optional(),

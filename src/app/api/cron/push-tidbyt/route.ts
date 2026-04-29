@@ -13,6 +13,9 @@ export async function GET(request: Request) {
 
   try {
     const outfit = await getOrCreateTodayOutfit();
+    if (!outfit) {
+      return NextResponse.json({ ok: false, error: "No outfit — closet is empty." }, { status: 422 });
+    }
     const ids = [outfit.topItemId, outfit.shirtItemId, outfit.bottomItemId, outfit.shoesItemId].filter(
       (value): value is number => value !== null,
     );
