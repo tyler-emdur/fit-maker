@@ -11,11 +11,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Image file is required." }, { status: 400 });
     }
 
-    // Upload first so Gemini gets a stable public URL
-    const imageUrl = await uploadItemImage(file);
+    // Run blob upload and Gemini analysis in parallel — pass raw bytes to Gemini
+    // so it doesn't need to make a secondary fetch to the Blob CDN (avoids failures
+    // on large files or URLs with special characters in the filename).
+    const arrayBuffer = await file.arrayBuffer();
+    const imageBytes = new Uint8Array(arrayBuffer);
 
-    // analyzeClothingImage never throws — it returns UNKNOWN_RESULT on any error
-    const analysis = await analyzeClothingImage(imageUrl);
+    const [imageUrl, analysis] = await Promise.all([
+      uploadItemImage(file),
+      analyzeClothingImage(imageBytes, file.type || "image/jpeg"),
+    ]);
+
     return NextResponse.json({ imageUrl, ...analysis });
   } catch (err) {
     console.error("[analyze] unexpected error:", err);

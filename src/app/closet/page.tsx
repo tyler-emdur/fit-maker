@@ -86,6 +86,7 @@ export default function ClosetPage() {
     const data = new FormData(form);
     data.set("category", category);
     data.set("imageUrl", suggestion.imageUrl);
+    data.set("active", "true");
     setSubmitting(true);
     try {
       const res = await fetch("/api/items", { method: "POST", body: data });

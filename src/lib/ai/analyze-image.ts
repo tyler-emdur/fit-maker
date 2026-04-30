@@ -64,7 +64,10 @@ const UNKNOWN_RESULT: ClothingAnalysis = {
   category: "short_sleeve",
 };
 
-export async function analyzeClothingImage(imageUrl: string): Promise<ClothingAnalysis> {
+export async function analyzeClothingImage(
+  image: Uint8Array,
+  mimeType: string,
+): Promise<ClothingAnalysis> {
   try {
     const { object } = await generateObject({
       model: google("gemini-2.5-flash"),
@@ -75,7 +78,7 @@ export async function analyzeClothingImage(imageUrl: string): Promise<ClothingAn
         {
           role: "user",
           content: [
-            { type: "image", image: new URL(imageUrl) },
+            { type: "image", image, mediaType: mimeType as "image/jpeg" | "image/png" | "image/webp" | "image/gif" },
             { type: "text", text: "What clothing item is this? Identify the brand if visible. Focus on the garment itself, not the background or surface it is resting on." },
           ],
         },
@@ -83,7 +86,8 @@ export async function analyzeClothingImage(imageUrl: string): Promise<ClothingAn
     });
 
     return { ...object, category: mapToCategory(object.type) };
-  } catch {
+  } catch (err) {
+    console.error("[analyzeClothingImage] error:", err);
     return UNKNOWN_RESULT;
   }
 }
