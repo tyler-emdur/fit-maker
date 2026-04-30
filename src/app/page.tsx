@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getItemsByIds } from "@/lib/db/client";
 import { getOrCreateTodayOutfit } from "@/lib/outfit/service";
+import { getWeatherSnapshot } from "@/lib/weather/provider";
 import { LogoutButton } from "@/components/LogoutButton";
 import { OutfitCard } from "@/components/outfit/OutfitCard";
 import { RegenerateButton } from "@/components/outfit/RegenerateButton";
@@ -8,7 +9,11 @@ import { RegenerateButton } from "@/components/outfit/RegenerateButton";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const outfit = await getOrCreateTodayOutfit();
+  // Fetch outfit and current weather in parallel
+  const [outfit, freshWeather] = await Promise.all([
+    getOrCreateTodayOutfit(),
+    getWeatherSnapshot().catch(() => null),
+  ]);
 
   const ids = outfit
     ? [outfit.topItemId, outfit.shirtItemId, outfit.bottomItemId, outfit.shoesItemId].filter(
@@ -54,7 +59,12 @@ export default async function Home() {
           </div>
         ) : (
           <div className="space-y-4">
-            <OutfitCard outfit={outfit} itemsById={itemsById} />
+            {/* Use fresh weather for display; fall back to stored snapshot */}
+            <OutfitCard
+              outfit={outfit}
+              itemsById={itemsById}
+              weather={freshWeather ?? outfit.weatherSnapshot}
+            />
             <RegenerateButton />
           </div>
         )}

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ClothingItem, Outfit } from "@/lib/types";
+import type { ClothingItem, Outfit, WeatherSnapshot } from "@/lib/types";
 
 const CATEGORY_LABEL: Record<string, string> = {
   short_sleeve: "Tee",
@@ -13,9 +13,10 @@ const CATEGORY_LABEL: Record<string, string> = {
 type OutfitCardProps = {
   outfit: Outfit & { createdAt?: string };
   itemsById: Map<number, ClothingItem>;
+  weather?: WeatherSnapshot;
 };
 
-export function OutfitCard({ outfit, itemsById }: OutfitCardProps) {
+export function OutfitCard({ outfit, itemsById, weather: weatherProp }: OutfitCardProps) {
   const pieces = [
     outfit.topItemId ? itemsById.get(outfit.topItemId) : undefined,
     outfit.shirtItemId ? itemsById.get(outfit.shirtItemId) : undefined,
@@ -23,7 +24,7 @@ export function OutfitCard({ outfit, itemsById }: OutfitCardProps) {
     outfit.shoesItemId ? itemsById.get(outfit.shoesItemId) : undefined,
   ].filter((item): item is ClothingItem => Boolean(item));
 
-  const { tempF, highF, lowF, condition, willRain, location } = outfit.weatherSnapshot;
+  const { tempF, highF, lowF, condition, willRain, location } = weatherProp ?? outfit.weatherSnapshot;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">

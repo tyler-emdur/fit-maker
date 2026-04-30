@@ -31,7 +31,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   url.searchParams.set("timezone", tz);
   url.searchParams.set("forecast_days", "1");
 
-  const response = await fetch(url.toString(), { next: { revalidate: 1800 } });
+  const response = await fetch(url.toString(), { cache: "no-store" });
   if (!response.ok) throw new Error(`Weather fetch failed: ${response.status}`);
 
   const payload = (await response.json()) as {
