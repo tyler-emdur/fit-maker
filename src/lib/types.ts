@@ -7,7 +7,7 @@ export type ClothingItem = {
   category: Category;
   imageUrl: string;
   color: string;
-  style: string;
+  brand: string | null;
   warmthScore: number | null;
   description: string | null;
   pattern: string | null;

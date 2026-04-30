@@ -40,7 +40,7 @@ export function scoreItem(item: ClothingItem, weather: WeatherSnapshot) {
 
   // Rain bonus for boots
   if (weather.condition === "Rainy" && item.category === "shoes") {
-    score += item.style.toLowerCase().includes("boot") ? 5 : -2;
+    score += item.name.toLowerCase().includes("boot") ? 5 : -2;
   }
 
   return score;

@@ -13,8 +13,6 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "shoes", label: "Shoes" },
 ];
 
-const STYLES = ["casual", "athletic", "streetwear", "preppy", "formal"];
-
 const CATEGORY_LABEL: Record<Category, string> = {
   short_sleeve: "Short Sleeve",
   long_sleeve: "Long Sleeve",
@@ -27,10 +25,11 @@ const CATEGORY_LABEL: Record<Category, string> = {
 type AiSuggestion = {
   imageUrl: string;
   category: Category;
+  suggestedName: string;
+  brand: string;
   type: string;
   color: string;
   pattern: string;
-  style: string;
   warmthScore: number;
   confidence: number;
 };
@@ -171,6 +170,7 @@ export default function ClosetPage() {
               </span>
               <p className="text-xs text-zinc-600 capitalize">
                 {suggestion.type} · {suggestion.pattern} · warmth {suggestion.warmthScore}/10
+                {suggestion.brand !== "Unknown" ? ` · ${suggestion.brand}` : ""}
               </p>
             </div>
 
@@ -182,6 +182,7 @@ export default function ClosetPage() {
               <input
                 id="name"
                 name="name"
+                defaultValue={suggestion.suggestedName}
                 placeholder="e.g. White Crewneck"
                 required
                 className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
@@ -214,49 +215,26 @@ export default function ClosetPage() {
               </div>
             </div>
 
-            <div className="mb-4 grid gap-4 sm:grid-cols-2">
-              {/* Color */}
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700" htmlFor="color">
-                  Color
-                  <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-normal text-zinc-500">
-                    AI: {suggestion.color}
-                  </span>
-                </label>
-                <input
-                  id="color"
-                  name="color"
-                  defaultValue={suggestion.color}
-                  required
-                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                />
-              </div>
-
-              {/* Style */}
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-zinc-700" htmlFor="style">
-                  Style
-                  <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-normal text-zinc-500">
-                    AI: {suggestion.style}
-                  </span>
-                </label>
-                <select
-                  id="style"
-                  name="style"
-                  defaultValue={suggestion.style}
-                  required
-                  className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                >
-                  {STYLES.map((s) => (
-                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                  ))}
-                </select>
-              </div>
+            <div className="mb-4">
+              <label className="mb-1.5 block text-sm font-medium text-zinc-700" htmlFor="color">
+                Color
+                <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-normal text-zinc-500">
+                  AI: {suggestion.color}
+                </span>
+              </label>
+              <input
+                id="color"
+                name="color"
+                defaultValue={suggestion.color}
+                required
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              />
             </div>
 
             {/* Hidden fields passed to POST /api/items */}
             <input type="hidden" name="warmthScore" value={suggestion.warmthScore} />
             <input type="hidden" name="pattern" value={suggestion.pattern} />
+            <input type="hidden" name="brand" value={suggestion.brand} />
 
             <button
               type="submit"
@@ -307,7 +285,8 @@ export default function ClosetPage() {
                       <p className="truncate font-medium text-sm">{item.name}</p>
                       <p className="mt-0.5 text-xs text-zinc-400 capitalize">
                         {CATEGORY_LABEL[item.category]} · {item.color}
-                        {item.pattern && item.pattern !== "solid" ? ` · ${item.pattern}` : ""} · {item.style}
+                        {item.pattern && item.pattern !== "solid" ? ` · ${item.pattern}` : ""}
+                        {item.brand && item.brand !== "Unknown" ? ` · ${item.brand}` : ""}
                       </p>
                     </div>
                     <button

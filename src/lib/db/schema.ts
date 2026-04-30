@@ -5,7 +5,6 @@ export const bootstrapStatements = [
     category TEXT NOT NULL,
     image_url TEXT NOT NULL,
     color TEXT NOT NULL,
-    style TEXT NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
@@ -16,6 +15,8 @@ export const bootstrapStatements = [
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS warmth_score INTEGER CHECK (warmth_score BETWEEN 1 AND 10)`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS pattern TEXT`,
+  `ALTER TABLE items DROP COLUMN IF EXISTS style`,
+  `ALTER TABLE items ADD COLUMN IF NOT EXISTS brand TEXT`,
   `CREATE TABLE IF NOT EXISTS outfits (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

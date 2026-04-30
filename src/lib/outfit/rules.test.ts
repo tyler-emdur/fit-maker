@@ -9,9 +9,10 @@ function makeItem(overrides: Partial<ClothingItem>): ClothingItem {
     category: "pants",
     imageUrl: "x",
     color: "Black",
-    style: "casual",
+    brand: null,
     warmthScore: null,
     description: null,
+    pattern: null,
     active: true,
     createdAt: new Date().toISOString(),
     ...overrides,
@@ -60,8 +61,8 @@ describe("outfit rules", () => {
 
   it("gives boots a rainy weather bonus", () => {
     const weather = { location: "Home", tempF: 60, condition: "Rainy", isCold: false, tempBand: "mild" as const };
-    const boots = makeItem({ category: "shoes", style: "rain boots" });
-    const sneakers = makeItem({ category: "shoes", style: "casual" });
+    const boots = makeItem({ category: "shoes", name: "Rain Boots" });
+    const sneakers = makeItem({ category: "shoes", name: "White Sneakers" });
     expect(scoreItem(boots, weather)).toBeGreaterThan(scoreItem(sneakers, weather));
   });
 });

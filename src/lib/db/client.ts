@@ -27,7 +27,7 @@ export async function listItems() {
   const result = await sql`SELECT * FROM items ORDER BY created_at DESC`;
   const rows = result.rows as Array<{
     id: number; name: string; category: string; image_url: string;
-    color: string; style: string; warmth_score: number | null;
+    color: string; brand: string | null; warmth_score: number | null;
     description: string | null; pattern: string | null; active: boolean; created_at: Date;
   }>;
 
@@ -37,7 +37,7 @@ export async function listItems() {
     category: assertCategory(row.category),
     imageUrl: row.image_url,
     color: row.color,
-    style: row.style,
+    brand: row.brand ?? null,
     warmthScore: row.warmth_score ?? null,
     description: row.description ?? null,
     pattern: row.pattern ?? null,
@@ -56,8 +56,8 @@ export async function getItemsByIds(ids: number[]) {
 export async function insertItem(input: Omit<ClothingItem, "id" | "createdAt">) {
   await ensureDatabase();
   const result = await sql`
-    INSERT INTO items (name, category, image_url, color, style, warmth_score, description, pattern, active)
-    VALUES (${input.name}, ${input.category}, ${input.imageUrl}, ${input.color}, ${input.style},
+    INSERT INTO items (name, category, image_url, color, brand, warmth_score, description, pattern, active)
+    VALUES (${input.name}, ${input.category}, ${input.imageUrl}, ${input.color}, ${input.brand ?? null},
             ${input.warmthScore ?? null}, ${input.description ?? null}, ${input.pattern ?? null}, ${input.active})
     RETURNING id`;
   const rows = result.rows as Array<{ id: number }>;
@@ -72,7 +72,7 @@ export async function updateItem(
   const existing = await sql`SELECT * FROM items WHERE id = ${id} LIMIT 1`;
   const current = existing.rows[0] as {
     name: string; category: string; image_url: string;
-    color: string; style: string; warmth_score: number | null;
+    color: string; brand: string | null; warmth_score: number | null;
     description: string | null; pattern: string | null; active: boolean;
   } | undefined;
   if (!current) return false;
@@ -82,7 +82,7 @@ export async function updateItem(
         category     = ${patch.category     ?? current.category},
         image_url    = ${patch.imageUrl     ?? current.image_url},
         color        = ${patch.color        ?? current.color},
-        style        = ${patch.style        ?? current.style},
+        brand        = ${patch.brand        ?? current.brand},
         warmth_score = ${patch.warmthScore  ?? current.warmth_score},
         description  = ${patch.description  ?? current.description},
         pattern      = ${patch.pattern      ?? current.pattern},

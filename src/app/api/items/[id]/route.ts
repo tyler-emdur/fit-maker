@@ -7,7 +7,7 @@ const updateSchema = z.object({
   name: z.string().min(1).optional(),
   category: z.enum(categories).optional(),
   color: z.string().min(1).optional(),
-  style: z.string().min(1).optional(),
+  brand: z.string().optional().nullable(),
   active: z.boolean().optional(),
 });
 
