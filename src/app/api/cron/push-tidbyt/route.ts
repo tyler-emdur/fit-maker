@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getItemsByIds } from "@/lib/db/client";
 import { getOrCreateTodayOutfit } from "@/lib/outfit/service";
 import { pushToTidbyt } from "@/lib/tidbyt/push";
-import { itemsToNames, renderTidbytOutfitPng } from "@/lib/tidbyt/render";
+import { itemsToNames, renderTidbytOutfit } from "@/lib/tidbyt/render";
 
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
@@ -20,14 +20,14 @@ export async function GET(request: Request) {
       (value): value is number => value !== null,
     );
     const items = await getItemsByIds(ids);
-    const imagePng = renderTidbytOutfitPng({
+    const image = await renderTidbytOutfit({
       tempF: outfit.weatherSnapshot.tempF,
       condition: outfit.weatherSnapshot.condition,
       location: outfit.weatherSnapshot.location,
       itemNames: itemsToNames(items),
     });
 
-    const pushed = await pushToTidbyt({ imagePng });
+    const pushed = await pushToTidbyt({ image });
     return NextResponse.json({ ok: true, pushed });
   } catch (error) {
     return NextResponse.json(

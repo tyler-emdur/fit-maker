@@ -13,14 +13,7 @@ export async function POST(request: Request) {
   // Upload first so Claude gets a stable public URL
   const imageUrl = await uploadItemImage(file);
 
-  try {
-    const analysis = await analyzeClothingImage(imageUrl);
-    return NextResponse.json({ imageUrl, ...analysis });
-  } catch (error) {
-    // Return the URL even if analysis fails — user can fill fields manually
-    return NextResponse.json(
-      { imageUrl, error: error instanceof Error ? error.message : "Analysis failed." },
-      { status: 200 },
-    );
-  }
+  // analyzeClothingImage never throws — it returns UNKNOWN_RESULT on any error
+  const analysis = await analyzeClothingImage(imageUrl);
+  return NextResponse.json({ imageUrl, ...analysis });
 }

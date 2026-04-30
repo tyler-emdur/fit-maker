@@ -1,4 +1,5 @@
 import { deflateRawSync } from "zlib";
+import sharp from "sharp";
 import { drawText } from "./font";
 
 const WIDTH = 64;
@@ -93,7 +94,11 @@ export function itemsToNames(items: { name: string; category: string }[]): strin
  *   y=18 — item 2 in white,             e.g. the bottom
  *   y=26 — item 3+ in dim white,        e.g. shoes (and extras)
  */
-export function renderTidbytOutfitPng(input: TidbytRenderInput): Buffer {
+/**
+ * Renders a 64×32 WebP for the Tidbyt Push API.
+ * Sharp converts the internal PNG pixels → lossless WebP.
+ */
+export async function renderTidbytOutfit(input: TidbytRenderInput): Promise<Buffer> {
   const pixels = new Uint8Array(WIDTH * HEIGHT * 3); // black background
 
   const { tempF, condition, itemNames } = input;
@@ -114,5 +119,7 @@ export function renderTidbytOutfitPng(input: TidbytRenderInput): Buffer {
     drawText(pixels, WIDTH, fit(row.text, 12), 1, row.y, row.r, row.g, row.b);
   }
 
-  return encodePng(pixels);
+  const png = encodePng(pixels);
+  // Tidbyt Push API requires WebP — convert losslessly via sharp
+  return sharp(png).webp({ lossless: true, effort: 6 }).toBuffer();
 }

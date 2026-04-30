@@ -27,10 +27,12 @@ const CATEGORY_LABEL: Record<Category, string> = {
 type AiSuggestion = {
   imageUrl: string;
   category: Category;
+  type: string;
   color: string;
+  pattern: string;
   style: string;
   warmthScore: number;
-  description: string;
+  confidence: number;
 };
 
 export default function ClosetPage() {
@@ -65,7 +67,7 @@ export default function ClosetPage() {
     const res = await fetch("/api/items/analyze", { method: "POST", body: data });
     const payload = await res.json() as Partial<AiSuggestion> & { error?: string };
 
-    if (payload.imageUrl && payload.category) {
+    if (payload.imageUrl && payload.category && payload.confidence !== 0) {
       setSuggestion(payload as AiSuggestion);
       setCategory(payload.category);
     }
@@ -162,12 +164,15 @@ export default function ClosetPage() {
         {/* Step 2: Fields (shown after analysis) */}
         {suggestion && (
           <>
-            {suggestion.description && (
-              <div className="mb-4 flex items-start gap-2 rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2">
-                <span className="text-xs text-zinc-400 mt-0.5">AI</span>
-                <p className="text-xs text-zinc-600">{suggestion.description}</p>
-              </div>
-            )}
+            {/* AI summary bar */}
+            <div className="mb-4 flex items-center gap-2 rounded-lg bg-zinc-50 border border-zinc-100 px-3 py-2">
+              <span className="shrink-0 rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+                AI {Math.round(suggestion.confidence * 100)}%
+              </span>
+              <p className="text-xs text-zinc-600 capitalize">
+                {suggestion.type} · {suggestion.pattern} · warmth {suggestion.warmthScore}/10
+              </p>
+            </div>
 
             {/* Name */}
             <div className="mb-4">
@@ -249,9 +254,9 @@ export default function ClosetPage() {
               </div>
             </div>
 
-            {/* Hidden fields */}
+            {/* Hidden fields passed to POST /api/items */}
             <input type="hidden" name="warmthScore" value={suggestion.warmthScore} />
-            <input type="hidden" name="description" value={suggestion.description} />
+            <input type="hidden" name="pattern" value={suggestion.pattern} />
 
             <button
               type="submit"
@@ -301,11 +306,9 @@ export default function ClosetPage() {
                     <div className="px-3 py-2.5">
                       <p className="truncate font-medium text-sm">{item.name}</p>
                       <p className="mt-0.5 text-xs text-zinc-400 capitalize">
-                        {CATEGORY_LABEL[item.category]} · {item.color} · {item.style}
+                        {CATEGORY_LABEL[item.category]} · {item.color}
+                        {item.pattern && item.pattern !== "solid" ? ` · ${item.pattern}` : ""} · {item.style}
                       </p>
-                      {item.description && (
-                        <p className="mt-1 text-xs text-zinc-400 italic truncate">{item.description}</p>
-                      )}
                     </div>
                     <button
                       type="button"

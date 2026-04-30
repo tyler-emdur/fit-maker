@@ -15,6 +15,7 @@ export const bootstrapStatements = [
   `ALTER TABLE items DROP COLUMN IF EXISTS season`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS warmth_score INTEGER CHECK (warmth_score BETWEEN 1 AND 10)`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT`,
+  `ALTER TABLE items ADD COLUMN IF NOT EXISTS pattern TEXT`,
   `CREATE TABLE IF NOT EXISTS outfits (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

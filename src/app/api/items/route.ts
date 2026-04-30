@@ -10,6 +10,7 @@ const bodySchema = z.object({
   style: z.string().min(1),
   warmthScore: z.coerce.number().int().min(1).max(10).nullable().optional(),
   description: z.string().optional().nullable(),
+  pattern: z.string().optional().nullable(),
   imageUrl: z.string().url(),
   active: z.coerce.boolean().default(true),
 });
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
     style: form.get("style"),
     warmthScore: form.get("warmthScore") || null,
     description: form.get("description") || null,
+    pattern: form.get("pattern") || null,
     imageUrl: form.get("imageUrl"),
     active: form.get("active"),
   });
@@ -38,7 +40,14 @@ export async function POST(request: Request) {
   }
 
   const { active, imageUrl, ...rest } = parsed.data;
-  const id = await insertItem({ ...rest, imageUrl, active, warmthScore: rest.warmthScore ?? null, description: rest.description ?? null });
+  const id = await insertItem({
+    ...rest,
+    imageUrl,
+    active,
+    warmthScore: rest.warmthScore ?? null,
+    description: rest.description ?? null,
+    pattern: rest.pattern ?? null,
+  });
 
   return NextResponse.json({ id, imageUrl }, { status: 201 });
 }

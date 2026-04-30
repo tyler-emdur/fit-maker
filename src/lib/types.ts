@@ -10,6 +10,7 @@ export type ClothingItem = {
   style: string;
   warmthScore: number | null;
   description: string | null;
+  pattern: string | null;
   active: boolean;
   createdAt: string;
 };

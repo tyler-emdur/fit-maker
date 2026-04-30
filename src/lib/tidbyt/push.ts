@@ -1,8 +1,8 @@
 type PushOptions = {
-  imagePng: Buffer | Uint8Array;
+  image: Buffer;
 };
 
-export async function pushToTidbyt({ imagePng }: PushOptions) {
+export async function pushToTidbyt({ image }: PushOptions) {
   const token = process.env.TIDBYT_API_TOKEN;
   const deviceId = process.env.TIDBYT_DEVICE_ID;
   const installationId = process.env.TIDBYT_INSTALLATION_ID ?? "fitmakerdaily";
@@ -11,7 +11,6 @@ export async function pushToTidbyt({ imagePng }: PushOptions) {
     throw new Error("TIDBYT_API_TOKEN and TIDBYT_DEVICE_ID are required.");
   }
 
-  const encoded = Buffer.from(imagePng).toString("base64");
   const response = await fetch(`https://api.tidbyt.com/v0/devices/${deviceId}/push`, {
     method: "POST",
     headers: {
@@ -19,9 +18,9 @@ export async function pushToTidbyt({ imagePng }: PushOptions) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      image: encoded,
+      image: image.toString("base64"),
       installationID: installationId,
-      background: true,
+      background: false, // show immediately
     }),
   });
 
@@ -32,4 +31,3 @@ export async function pushToTidbyt({ imagePng }: PushOptions) {
 
   return response.json();
 }
-

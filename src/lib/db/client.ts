@@ -28,7 +28,7 @@ export async function listItems() {
   const rows = result.rows as Array<{
     id: number; name: string; category: string; image_url: string;
     color: string; style: string; warmth_score: number | null;
-    description: string | null; active: boolean; created_at: Date;
+    description: string | null; pattern: string | null; active: boolean; created_at: Date;
   }>;
 
   return rows.map((row): ClothingItem => ({
@@ -40,6 +40,7 @@ export async function listItems() {
     style: row.style,
     warmthScore: row.warmth_score ?? null,
     description: row.description ?? null,
+    pattern: row.pattern ?? null,
     active: row.active,
     createdAt: new Date(row.created_at).toISOString(),
   }));
@@ -55,9 +56,9 @@ export async function getItemsByIds(ids: number[]) {
 export async function insertItem(input: Omit<ClothingItem, "id" | "createdAt">) {
   await ensureDatabase();
   const result = await sql`
-    INSERT INTO items (name, category, image_url, color, style, warmth_score, description, active)
+    INSERT INTO items (name, category, image_url, color, style, warmth_score, description, pattern, active)
     VALUES (${input.name}, ${input.category}, ${input.imageUrl}, ${input.color}, ${input.style},
-            ${input.warmthScore ?? null}, ${input.description ?? null}, ${input.active})
+            ${input.warmthScore ?? null}, ${input.description ?? null}, ${input.pattern ?? null}, ${input.active})
     RETURNING id`;
   const rows = result.rows as Array<{ id: number }>;
   return rows[0]?.id;
@@ -72,7 +73,7 @@ export async function updateItem(
   const current = existing.rows[0] as {
     name: string; category: string; image_url: string;
     color: string; style: string; warmth_score: number | null;
-    description: string | null; active: boolean;
+    description: string | null; pattern: string | null; active: boolean;
   } | undefined;
   if (!current) return false;
 
@@ -84,6 +85,7 @@ export async function updateItem(
         style        = ${patch.style        ?? current.style},
         warmth_score = ${patch.warmthScore  ?? current.warmth_score},
         description  = ${patch.description  ?? current.description},
+        pattern      = ${patch.pattern      ?? current.pattern},
         active       = ${patch.active       ?? current.active}
     WHERE id = ${id}`;
   return true;
