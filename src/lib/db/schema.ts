@@ -9,8 +9,12 @@ export const bootstrapStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`,
   `ALTER TABLE items DROP CONSTRAINT IF EXISTS items_category_check`,
-  `ALTER TABLE items ADD CONSTRAINT items_category_check
-    CHECK (category IN ('long_sleeve', 'short_sleeve', 'shorts', 'pants', 'outerwear', 'shoes'))`,
+  `DO $$ BEGIN
+     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'items_category_check') THEN
+       ALTER TABLE items ADD CONSTRAINT items_category_check
+         CHECK (category IN ('long_sleeve', 'short_sleeve', 'shorts', 'pants', 'outerwear', 'shoes'));
+     END IF;
+   END $$`,
   `ALTER TABLE items DROP COLUMN IF EXISTS season`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS warmth_score INTEGER CHECK (warmth_score BETWEEN 1 AND 10)`,
   `ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT`,
