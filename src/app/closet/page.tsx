@@ -61,16 +61,21 @@ export default function ClosetPage() {
     setSuggestion(null);
     setAnalyzing(true);
 
-    const data = new FormData();
-    data.append("file", file);
-    const res = await fetch("/api/items/analyze", { method: "POST", body: data });
-    const payload = await res.json() as Partial<AiSuggestion> & { error?: string };
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      const res = await fetch("/api/items/analyze", { method: "POST", body: data });
+      const payload = await res.json() as Partial<AiSuggestion> & { error?: string };
 
-    if (payload.imageUrl && payload.category && payload.confidence !== 0) {
-      setSuggestion(payload as AiSuggestion);
-      setCategory(payload.category);
+      if (payload.imageUrl && payload.category && payload.confidence !== 0) {
+        setSuggestion(payload as AiSuggestion);
+        setCategory(payload.category);
+      }
+    } catch (err) {
+      console.error("analyze failed:", err);
+    } finally {
+      setAnalyzing(false);
     }
-    setAnalyzing(false);
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
