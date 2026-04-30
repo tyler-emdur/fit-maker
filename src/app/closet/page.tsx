@@ -54,9 +54,48 @@ export default function ClosetPage() {
 
   useEffect(() => { refreshItems(); }, []);
 
+  async function toJpeg(raw: File): Promise<File> {
+    const bitmap = await createImageBitmap(raw);
+    const MAX = 1920;
+    let { width, height } = bitmap;
+    if (width > MAX || height > MAX) {
+      const r = Math.min(MAX / width, MAX / height);
+      width = Math.round(width * r);
+      height = Math.round(height * r);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    return new Promise((resolve, reject) =>
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error("toBlob failed"));
+          resolve(new File([blob], raw.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        0.88,
+      ),
+    );
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const raw = e.target.files?.[0];
+    if (!raw) return;
+
+    // Convert HEIC/HEIF → JPEG in the browser before uploading
+    // macOS decodes HEIC natively so createImageBitmap works in Chrome + Safari
+    const isHeic = /\.(heic|heif)$/i.test(raw.name) || raw.type === "image/heic" || raw.type === "image/heif";
+    let file = raw;
+    if (isHeic) {
+      try {
+        file = await toJpeg(raw);
+      } catch (err) {
+        console.warn("HEIC client conversion failed, sending original:", err);
+      }
+    }
+
     setPreview(URL.createObjectURL(file));
     setSuggestion(null);
     setAnalyzing(true);
