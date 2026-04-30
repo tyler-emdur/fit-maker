@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     if (!response.ok) {
       const payload = (await response.json()) as { error?: string };
-      setError(payload.error ?? "Unable to sign in.");
+      setError(payload.error ?? "Incorrect password.");
       setLoading(false);
       return;
     }
@@ -32,31 +32,45 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6">
-      <h1 className="text-2xl font-semibold">Fit Maker</h1>
-      <p className="mt-2 text-sm text-zinc-500">Private closet access.</p>
+    <main className="flex min-h-screen items-center justify-center px-5">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold tracking-tight">Fit Maker</h1>
+          <p className="mt-1 text-sm text-zinc-500">Your personal outfit planner</p>
+        </div>
 
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4 rounded-xl border p-6">
-        <label className="text-sm font-medium">
-          Password
-          <input
-            className="mt-2 w-full rounded-md border px-3 py-2"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </label>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <button
-          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-          type="submit"
-          disabled={loading}
+        <form
+          onSubmit={onSubmit}
+          className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm space-y-4"
         >
-          {loading ? "Checking..." : "Enter"}
-        </button>
-      </form>
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoFocus
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
+          >
+            {loading ? "Checking…" : "Enter"}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
-

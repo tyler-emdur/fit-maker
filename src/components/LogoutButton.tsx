@@ -12,9 +12,12 @@ export function LogoutButton() {
   }
 
   return (
-    <button className="rounded-md border px-3 py-1 text-sm" onClick={logout} type="button">
+    <button
+      className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+      onClick={logout}
+      type="button"
+    >
       Log out
     </button>
   );
 }
-

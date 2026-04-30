@@ -12,7 +12,6 @@ const bodySchema = z.object({
   description: z.string().optional().nullable(),
   pattern: z.string().optional().nullable(),
   imageUrl: z.string().url(),
-  active: z.coerce.boolean().default(true),
 });
 
 export async function GET() {
@@ -32,18 +31,17 @@ export async function POST(request: Request) {
     description: form.get("description") || null,
     pattern: form.get("pattern") || null,
     imageUrl: form.get("imageUrl"),
-    active: form.get("active"),
   });
 
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { active, imageUrl, ...rest } = parsed.data;
+  const { imageUrl, ...rest } = parsed.data;
   const id = await insertItem({
     ...rest,
     imageUrl,
-    active,
+    active: true,
     brand: rest.brand ?? null,
     warmthScore: rest.warmthScore ?? null,
     description: rest.description ?? null,

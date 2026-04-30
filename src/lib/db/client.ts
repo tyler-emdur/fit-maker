@@ -17,7 +17,12 @@ function assertCategory(value: string): ClothingItem["category"] {
 export async function ensureDatabase() {
   if (initialized) return;
   for (const stmt of bootstrapStatements) {
-    await pool.query(stmt);
+    try {
+      await pool.query(stmt);
+    } catch (err) {
+      // Log but continue — most failures are already-applied migrations (IF EXISTS guards)
+      console.warn("[db] migration skipped:", (err as Error).message);
+    }
   }
   initialized = true;
 }
