@@ -22,7 +22,10 @@ export async function GET(request: Request) {
     const items = await getItemsByIds(ids);
     const image = await renderTidbytOutfit({
       tempF: outfit.weatherSnapshot.tempF,
+      highF: outfit.weatherSnapshot.highF,
+      lowF: outfit.weatherSnapshot.lowF,
       condition: outfit.weatherSnapshot.condition,
+      willRain: outfit.weatherSnapshot.willRain,
       location: outfit.weatherSnapshot.location,
       itemNames: itemsToNames(items),
     });

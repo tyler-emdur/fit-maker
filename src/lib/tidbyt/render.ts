@@ -73,7 +73,10 @@ function fit(text: string, maxChars: number): string {
 
 export type TidbytRenderInput = {
   tempF: number;
+  highF?: number;
+  lowF?: number;
   condition: string;
+  willRain?: boolean;
   location: string;
   itemNames: string[];
 };
@@ -101,11 +104,19 @@ export function itemsToNames(items: { name: string; category: string }[]): strin
 export async function renderTidbytOutfit(input: TidbytRenderInput): Promise<Buffer> {
   const pixels = new Uint8Array(WIDTH * HEIGHT * 3); // black background
 
-  const { tempF, condition, itemNames } = input;
+  const { tempF, highF, lowF, condition, willRain, itemNames } = input;
 
-  // Row 0 — weather in yellow
-  const weatherLine = fit(`${Math.round(tempF)}F ${condition.toUpperCase()}`, 12);
+  // Row 0 — weather in yellow; show H/L if available, rain indicator in blue
+  const tempStr = highF != null && lowF != null
+    ? `H${highF}/L${lowF}`
+    : `${Math.round(tempF)}F`;
+  const weatherLine = fit(`${tempStr} ${condition.slice(0, 3).toUpperCase()}`, 12);
   drawText(pixels, WIDTH, weatherLine, 1, 2, 255, 210, 0);
+
+  // Rain dot — blue pixel cluster at far right of row 0 if rain expected
+  if (willRain) {
+    drawText(pixels, WIDTH, "~", 57, 2, 100, 160, 255);
+  }
 
   // Rows 1–3 — garment names
   const nameRows: { y: number; text: string; r: number; g: number; b: number }[] = [

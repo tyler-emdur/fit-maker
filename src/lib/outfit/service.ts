@@ -12,9 +12,12 @@ export async function getOrCreateTodayOutfit() {
   }
 
   const weather = await getWeatherSnapshot().catch(() => ({
-    location: "Home",
+    location: "Boulder",
     tempF: 65,
-    condition: "Unknown",
+    highF: 70,
+    lowF: 50,
+    condition: "Clear",
+    willRain: false,
     isCold: false,
   }));
   try {
@@ -28,9 +31,12 @@ export async function getOrCreateTodayOutfit() {
 
 export async function regenerateTodayOutfit() {
   const weather = await getWeatherSnapshot().catch(() => ({
-    location: "Home",
+    location: "Boulder",
     tempF: 65,
-    condition: "Unknown",
+    highF: 70,
+    lowF: 50,
+    condition: "Clear",
+    willRain: false,
     isCold: false,
   }));
   const generated = await generateOutfit(weather, "manual_regen");

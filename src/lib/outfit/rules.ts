@@ -38,8 +38,8 @@ export function scoreItem(item: ClothingItem, weather: WeatherSnapshot) {
     // mild: no category-based bonus — let color/rotation decide
   }
 
-  // Rain bonus for boots
-  if (weather.condition === "Rainy" && item.category === "shoes") {
+  // Rain/snow bonus for boots
+  if (weather.willRain && item.category === "shoes") {
     score += item.name.toLowerCase().includes("boot") ? 5 : -2;
   }
 

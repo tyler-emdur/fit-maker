@@ -54,9 +54,13 @@ export default function ClosetPage() {
 
   useEffect(() => { refreshItems(); }, []);
 
-  async function toJpeg(raw: File): Promise<File> {
+  // Always normalise to JPEG before uploading:
+  // - HEIC/HEIF decoded via macOS native codec (createImageBitmap)
+  // - Everything resized to ≤ 1600px so files stay well under Vercel's 4.5 MB body limit
+  //   (iPhone photos straight from the camera roll are often 6–12 MB)
+  async function normalise(raw: File): Promise<File> {
     const bitmap = await createImageBitmap(raw);
-    const MAX = 1920;
+    const MAX = 1600;
     let { width, height } = bitmap;
     if (width > MAX || height > MAX) {
       const r = Math.min(MAX / width, MAX / height);
@@ -72,7 +76,8 @@ export default function ClosetPage() {
       canvas.toBlob(
         (blob) => {
           if (!blob) return reject(new Error("toBlob failed"));
-          resolve(new File([blob], raw.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg" }));
+          const name = raw.name.replace(/\.[^.]+$/, "") + ".jpg";
+          resolve(new File([blob], name, { type: "image/jpeg" }));
         },
         "image/jpeg",
         0.88,
@@ -84,16 +89,11 @@ export default function ClosetPage() {
     const raw = e.target.files?.[0];
     if (!raw) return;
 
-    // Convert HEIC/HEIF → JPEG in the browser before uploading
-    // macOS decodes HEIC natively so createImageBitmap works in Chrome + Safari
-    const isHeic = /\.(heic|heif)$/i.test(raw.name) || raw.type === "image/heic" || raw.type === "image/heif";
     let file = raw;
-    if (isHeic) {
-      try {
-        file = await toJpeg(raw);
-      } catch (err) {
-        console.warn("HEIC client conversion failed, sending original:", err);
-      }
+    try {
+      file = await normalise(raw);
+    } catch (err) {
+      console.warn("Image normalisation failed, uploading original:", err);
     }
 
     setPreview(URL.createObjectURL(file));

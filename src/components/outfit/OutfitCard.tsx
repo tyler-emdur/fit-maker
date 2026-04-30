@@ -23,7 +23,7 @@ export function OutfitCard({ outfit, itemsById }: OutfitCardProps) {
     outfit.shoesItemId ? itemsById.get(outfit.shoesItemId) : undefined,
   ].filter((item): item is ClothingItem => Boolean(item));
 
-  const { tempF, condition, location } = outfit.weatherSnapshot;
+  const { tempF, highF, lowF, condition, willRain, location } = outfit.weatherSnapshot;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
@@ -32,10 +32,18 @@ export function OutfitCard({ outfit, itemsById }: OutfitCardProps) {
         <div>
           <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">Today&apos;s Fit</p>
           <h2 className="mt-0.5 text-lg font-bold leading-tight">
-            {Math.round(tempF)}°F &mdash; {condition}
+            {highF != null ? `${highF}° / ${lowF}°F` : `${Math.round(tempF)}°F`}
+            {" — "}{condition}
           </h2>
         </div>
-        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-500">{location}</span>
+        <div className="flex items-center gap-2">
+          {willRain && (
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+              Rain likely
+            </span>
+          )}
+          <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-500">{location}</span>
+        </div>
       </div>
 
       {/* Items grid */}

@@ -19,8 +19,11 @@ export type TempBand = "freezing" | "cold" | "mild" | "warm";
 
 export type WeatherSnapshot = {
   location: string;
-  tempF: number;
+  tempF: number;       // current / morning temperature
+  highF: number;       // daily high — used for outfit band decisions
+  lowF: number;        // daily low — shown in UI
   condition: string;
+  willRain: boolean;   // precipitation probability ≥ 40 %
   isCold: boolean;
   tempBand?: TempBand;
 };
