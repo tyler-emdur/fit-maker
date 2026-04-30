@@ -28,37 +28,49 @@ export function OutfitCard({ outfit, itemsById, weather: weatherProp }: OutfitCa
   const { tempF, highF, lowF, condition, willRain, location, forecast } = w;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <section className="overflow-hidden border border-[#e8e8e8] bg-white">
       {/* Weather header */}
-      <div className="border-b border-zinc-100 px-5 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">Today&apos;s Fit</p>
-            <h2 className="mt-0.5 text-lg font-bold leading-tight">
-              {Math.round(tempF)}°F now
-              {highF != null && lowF != null && (
-                <span className="ml-2 text-sm font-normal text-zinc-500">
-                  H {highF}° · L {lowF}°
-                </span>
-              )}
-            </h2>
-            <p className="mt-0.5 text-sm text-zinc-500">
+      <div className="px-5 pt-5 pb-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
+          Today&apos;s Fit
+        </p>
+
+        <div className="mt-3 flex items-end justify-between gap-4">
+          <span className="text-[56px] font-black leading-none tracking-tight text-zinc-900">
+            {Math.round(tempF)}°
+          </span>
+          <div className="mb-1 text-right">
+            {highF != null && lowF != null && (
+              <p className="text-sm font-semibold text-zinc-500">
+                H {highF}° &nbsp;L {lowF}°
+              </p>
+            )}
+            <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-400">
               {condition}
-              {willRain && " · Rain likely"}
-              {" · "}{location}
+              {willRain && " · Rain"}
+              {" · "}
+              {location}
             </p>
           </div>
         </div>
 
-        {/* Hourly forecast row */}
+        {/* Divider */}
+        <div className="my-4 h-px bg-[#e8e8e8]" />
+
+        {/* Hourly forecast pills */}
         {forecast && forecast.length > 0 && (
-          <div className="mt-3 flex gap-4 border-t border-zinc-50 pt-3">
+          <div className="flex flex-wrap gap-2">
             {forecast.map((h) => (
-              <div key={h.label} className="flex flex-col items-center gap-0.5">
-                <span className="text-[10px] font-medium text-zinc-400">{h.label}</span>
-                <span className="text-sm font-semibold">{h.tempF}°</span>
+              <div
+                key={h.label}
+                className="flex items-center gap-1.5 rounded-full bg-[#f2f2f2] px-3 py-1.5"
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                  {h.label}
+                </span>
+                <span className="text-[12px] font-bold text-zinc-900">{h.tempF}°</span>
                 {h.rainPct >= 30 && (
-                  <span className="text-[10px] font-medium text-blue-500">{h.rainPct}%</span>
+                  <span className="text-[10px] font-semibold text-blue-500">{h.rainPct}%</span>
                 )}
               </div>
             ))}
@@ -66,22 +78,29 @@ export function OutfitCard({ outfit, itemsById, weather: weatherProp }: OutfitCa
         )}
       </div>
 
-      {/* Items grid */}
-      <div className="grid grid-cols-2 gap-px bg-zinc-100">
-        {pieces.map((item) => (
-          <div key={item.id} className="bg-white">
-            <div className="relative h-52 w-full bg-zinc-50">
+      {/* Clothing grid */}
+      <div className="border-t border-[#e8e8e8] grid grid-cols-2">
+        {pieces.map((item, idx) => (
+          <div
+            key={item.id}
+            className={[
+              "group cursor-default transition-transform duration-150 hover:-translate-y-0.5",
+              idx % 2 === 0 ? "border-r border-[#e8e8e8]" : "",
+              idx >= 2 ? "border-t border-[#e8e8e8]" : "",
+            ].join(" ")}
+          >
+            <div className="relative h-64 w-full bg-[#f8f8f8]">
               <Image
                 src={item.imageUrl}
                 alt={item.name}
                 fill
                 unoptimized
-                className="object-contain p-2"
+                className="object-contain p-3"
               />
             </div>
-            <div className="px-3.5 pb-3.5 pt-2.5">
-              <p className="truncate text-sm font-semibold">{item.name}</p>
-              <p className="mt-0.5 text-xs text-zinc-400">
+            <div className="border-t border-[#e8e8e8] px-4 pb-4 pt-3">
+              <p className="truncate text-base font-medium leading-snug">{item.name}</p>
+              <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
                 {CATEGORY_LABEL[item.category] ?? item.category}
                 {item.color ? ` · ${item.color}` : ""}
               </p>

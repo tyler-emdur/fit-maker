@@ -54,10 +54,6 @@ export default function ClosetPage() {
 
   useEffect(() => { refreshItems(); }, []);
 
-  // Always normalise to JPEG before uploading:
-  // - HEIC/HEIF decoded via macOS native codec (createImageBitmap)
-  // - Everything resized to ≤ 1600px so files stay well under Vercel's 4.5 MB body limit
-  //   (iPhone photos straight from the camera roll are often 6–12 MB)
   async function normalise(raw: File): Promise<File> {
     const bitmap = await createImageBitmap(raw);
     const MAX = 1600;
@@ -162,28 +158,32 @@ export default function ClosetPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-3.5">
-          <div>
-            <span className="text-base font-semibold tracking-tight">Closet</span>
-            <span className="ml-2 text-sm text-zinc-400">
-              {loading ? "" : `${items.length} item${items.length !== 1 ? "s" : ""}`}
-            </span>
+      <header className="sticky top-0 z-10 border-b border-[#e8e8e8] bg-white">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-4">
+          <div className="flex items-baseline gap-3">
+            <span className="text-xl font-black tracking-tight">CLOSET</span>
+            {!loading && (
+              <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
+                {items.length} {items.length !== 1 ? "pieces" : "piece"}
+              </span>
+            )}
           </div>
           <a
             href="/"
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+            className="text-[13px] font-semibold uppercase tracking-[0.1em] text-zinc-400 underline-offset-2 transition-colors hover:text-zinc-900 hover:underline"
           >
-            ← Today
+            Today&apos;s Fit
           </a>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-2xl px-5 py-8 space-y-8">
         {/* Add form */}
-        <form onSubmit={submit} className="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-zinc-100">
-            <h2 className="text-sm font-semibold">Add item</h2>
+        <form onSubmit={submit} className="overflow-hidden border border-[#e8e8e8] bg-white">
+          <div className="border-b border-[#e8e8e8] px-5 py-4">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
+              Add Item
+            </h2>
           </div>
 
           <div className="p-5 space-y-5">
@@ -192,29 +192,32 @@ export default function ClosetPage() {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-full rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50 transition-colors hover:border-zinc-300 hover:bg-zinc-100 focus:outline-none"
+                className="w-full border border-dashed border-[#e8e8e8] bg-[#f8f8f8] transition-colors hover:border-zinc-300 hover:bg-[#f2f2f2] focus:outline-none"
               >
                 {analyzing ? (
                   <div className="flex flex-col items-center justify-center py-10">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
-                    <p className="mt-3 text-sm font-medium text-zinc-600">Analyzing with Gemini…</p>
-                    <p className="mt-1 text-xs text-zinc-400">This takes a few seconds</p>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
+                    <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                      Analyzing…
+                    </p>
                   </div>
                 ) : preview ? (
                   <div className="relative h-56 w-full">
                     <img
                       src={preview}
                       alt="Preview"
-                      className="h-full w-full rounded-[10px] object-contain p-3"
+                      className="h-full w-full object-contain p-3"
                     />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-10">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-lg">
+                    <div className="flex h-9 w-9 items-center justify-center border border-[#e8e8e8] bg-white text-lg text-zinc-400">
                       +
                     </div>
-                    <p className="mt-3 text-sm font-medium text-zinc-600">Upload a photo</p>
-                    <p className="mt-1 text-xs text-zinc-400">JPG · PNG · WEBP · HEIC</p>
+                    <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
+                      Upload a photo
+                    </p>
+                    <p className="mt-1 text-[10px] text-zinc-400">JPG · PNG · WEBP · HEIC</p>
                   </div>
                 )}
               </button>
@@ -231,11 +234,11 @@ export default function ClosetPage() {
             {suggestion && (
               <>
                 {/* AI badge */}
-                <div className="flex items-center gap-2.5 rounded-xl bg-zinc-50 border border-zinc-100 px-3.5 py-2.5">
-                  <span className="shrink-0 rounded-md bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                <div className="flex items-center gap-3 border border-[#e8e8e8] bg-[#f8f8f8] px-3.5 py-2.5">
+                  <span className="shrink-0 bg-zinc-900 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white">
                     AI · {Math.round(suggestion.confidence * 100)}%
                   </span>
-                  <p className="text-xs text-zinc-500 capitalize truncate">
+                  <p className="truncate text-[11px] text-zinc-400 capitalize">
                     {suggestion.type}
                     {suggestion.pattern && suggestion.pattern !== "solid" ? ` · ${suggestion.pattern}` : ""}
                     {` · warmth ${suggestion.warmthScore}/10`}
@@ -245,7 +248,10 @@ export default function ClosetPage() {
 
                 {/* Name */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-zinc-500" htmlFor="name">
+                  <label
+                    className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.15em] text-zinc-400"
+                    htmlFor="name"
+                  >
                     Name
                   </label>
                   <input
@@ -254,15 +260,17 @@ export default function ClosetPage() {
                     defaultValue={suggestion.suggestedName}
                     placeholder="e.g. White Crewneck"
                     required
-                    className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm placeholder:text-zinc-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="w-full border border-[#e8e8e8] bg-white px-3 py-2.5 text-sm placeholder:text-zinc-300 focus:border-zinc-400 focus:outline-none"
                   />
                 </div>
 
                 {/* Category */}
                 <div>
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Category</span>
-                    <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-500">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-zinc-400">
+                      Category
+                    </span>
+                    <span className="border border-[#e8e8e8] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
                       AI: {CATEGORY_LABEL[suggestion.category]}
                     </span>
                   </div>
@@ -272,10 +280,10 @@ export default function ClosetPage() {
                         key={opt.value}
                         type="button"
                         onClick={() => setCategory(opt.value)}
-                        className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                        className={`rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] transition-colors ${
                           category === opt.value
                             ? "border-zinc-900 bg-zinc-900 text-white"
-                            : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-400 hover:text-zinc-700"
+                            : "border-[#e8e8e8] text-zinc-400 hover:border-zinc-400 hover:text-zinc-700"
                         }`}
                       >
                         {opt.label}
@@ -286,9 +294,12 @@ export default function ClosetPage() {
 
                 {/* Color */}
                 <div>
-                  <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500" htmlFor="color">
+                  <label
+                    className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-zinc-400"
+                    htmlFor="color"
+                  >
                     Color
-                    <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium normal-case tracking-normal text-zinc-500">
+                    <span className="border border-[#e8e8e8] px-2 py-0.5 text-[9px] font-semibold normal-case tracking-normal text-zinc-400">
                       AI: {suggestion.color}
                     </span>
                   </label>
@@ -297,7 +308,7 @@ export default function ClosetPage() {
                     name="color"
                     defaultValue={suggestion.color}
                     required
-                    className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    className="w-full border border-[#e8e8e8] bg-white px-3 py-2.5 text-sm focus:border-zinc-400 focus:outline-none"
                   />
                 </div>
 
@@ -309,7 +320,7 @@ export default function ClosetPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
+                  className="w-full bg-zinc-900 py-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-zinc-700 disabled:opacity-50"
                 >
                   {submitting ? "Saving…" : "Add to Closet"}
                 </button>
@@ -317,54 +328,59 @@ export default function ClosetPage() {
             )}
 
             {!suggestion && !analyzing && !preview && (
-              <p className="text-center text-xs text-zinc-400">Upload a photo to get started</p>
+              <p className="text-center text-[11px] uppercase tracking-[0.1em] text-zinc-400">
+                Upload a photo to get started
+              </p>
             )}
             {!suggestion && !analyzing && preview && (
-              <p className="text-center text-xs text-zinc-400">Analysis failed — tap the photo to try again</p>
+              <p className="text-center text-[11px] uppercase tracking-[0.1em] text-zinc-400">
+                Analysis failed — tap the photo to try again
+              </p>
             )}
           </div>
         </form>
 
         {/* Items by category */}
         {loading ? (
-          <p className="text-sm text-zinc-400">Loading…</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-400">Loading…</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-zinc-400">No items yet — add your first piece above.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
+            No items yet — add your first piece above.
+          </p>
         ) : (
           <div className="space-y-8">
             {byCategory.map((group) => (
               <section key={group.value}>
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400">
+                <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
                   {group.label}
                 </h2>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-px bg-[#e8e8e8]">
                   {group.items.map((item) => (
                     <article
                       key={item.id}
-                      className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                      className="group relative overflow-hidden bg-white transition-transform duration-150 hover:-translate-y-0.5"
                     >
-                      <div className="relative h-44 w-full bg-zinc-50">
+                      <div className="relative h-56 w-full bg-[#f8f8f8]">
                         <Image
                           src={item.imageUrl}
                           alt={item.name}
                           fill
                           unoptimized
-                          className="object-contain p-2"
+                          className="object-contain p-3"
                         />
                       </div>
-                      <div className="px-3 pb-3 pt-2.5">
-                        <p className="truncate text-sm font-semibold">{item.name}</p>
-                        <p className="mt-0.5 truncate text-xs text-zinc-400 capitalize">
-                          {item.color}
-                          {item.pattern && item.pattern !== "solid" ? ` · ${item.pattern}` : ""}
-                          {item.brand && item.brand !== "Unknown" ? ` · ${item.brand}` : ""}
+                      <div className="border-t border-[#e8e8e8] px-3.5 pb-4 pt-3">
+                        <p className="truncate text-base font-medium leading-snug">{item.name}</p>
+                        <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-400">
+                          {CATEGORY_LABEL[item.category]}
+                          {item.color ? ` · ${item.color}` : ""}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}
                         disabled={removingId === item.id}
-                        className="absolute right-2 top-2 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 disabled:opacity-30"
+                        className="absolute right-2 top-2 border border-[#e8e8e8] bg-white px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-30"
                       >
                         {removingId === item.id ? "…" : "Remove"}
                       </button>

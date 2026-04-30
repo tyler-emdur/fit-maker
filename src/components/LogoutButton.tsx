@@ -13,7 +13,7 @@ export function LogoutButton() {
 
   return (
     <button
-      className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+      className="text-[13px] font-semibold uppercase tracking-[0.1em] text-zinc-400 underline-offset-2 transition-colors hover:text-zinc-900 hover:underline"
       onClick={logout}
       type="button"
     >

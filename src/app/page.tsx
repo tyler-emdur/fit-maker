@@ -9,7 +9,6 @@ import { RegenerateButton } from "@/components/outfit/RegenerateButton";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Fetch outfit and current weather in parallel
   const [outfit, freshWeather] = await Promise.all([
     getOrCreateTodayOutfit(),
     getWeatherSnapshot().catch(() => null),
@@ -25,13 +24,13 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-3.5">
-          <span className="text-base font-semibold tracking-tight">Fit Maker</span>
-          <div className="flex items-center gap-1">
+      <header className="sticky top-0 z-10 border-b border-[#e8e8e8] bg-white">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-4">
+          <span className="text-xl font-black tracking-tight">FIT MAKER</span>
+          <div className="flex items-center gap-6">
             <Link
               href="/closet"
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
+              className="text-[13px] font-semibold uppercase tracking-[0.1em] text-zinc-400 underline-offset-2 transition-colors hover:text-zinc-900 hover:underline"
             >
               Closet
             </Link>
@@ -42,24 +41,23 @@ export default async function Home() {
 
       <main className="mx-auto w-full max-w-2xl px-5 py-8">
         {!outfit ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white px-6 py-16 text-center shadow-sm">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-2xl">
-              👔
-            </div>
-            <h2 className="mt-4 text-base font-semibold">Your closet is empty</h2>
-            <p className="mt-1.5 max-w-xs text-sm text-zinc-500">
+          <div className="flex flex-col items-center justify-center border border-[#e8e8e8] bg-white px-6 py-16 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
+              No Outfit
+            </p>
+            <h2 className="mt-4 text-2xl font-black tracking-tight">Closet Empty</h2>
+            <p className="mt-2 max-w-xs text-sm text-zinc-500">
               Add some clothes and we&apos;ll put together your first outfit.
             </p>
             <Link
               href="/closet"
-              className="mt-6 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+              className="mt-6 bg-zinc-900 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-white transition-colors hover:bg-zinc-700"
             >
               Add clothes
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Use fresh weather for display; fall back to stored snapshot */}
+          <div className="space-y-3">
             <OutfitCard
               outfit={outfit}
               itemsById={itemsById}

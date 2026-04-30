@@ -25,12 +25,12 @@ export function RegenerateButton() {
   return (
     <div className="space-y-2">
       <button
-        className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 text-sm font-medium text-zinc-600 shadow-sm transition-colors hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50"
+        className="w-full border border-[#e8e8e8] bg-white py-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-zinc-400 transition-colors hover:border-zinc-400 hover:text-zinc-900 disabled:opacity-40"
         onClick={regenerate}
         type="button"
         disabled={loading}
       >
-        {loading ? "Finding a new outfit..." : "Try a different outfit"}
+        {loading ? "Finding a new fit…" : "Try a different fit"}
       </button>
       {error && <p className="text-center text-xs text-red-500">{error}</p>}
     </div>
