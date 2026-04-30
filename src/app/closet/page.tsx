@@ -67,7 +67,8 @@ export default function ClosetPage() {
       const res = await fetch("/api/items/analyze", { method: "POST", body: data });
       const payload = await res.json() as Partial<AiSuggestion> & { error?: string };
 
-      if (payload.imageUrl && payload.category && payload.confidence !== 0) {
+      // Show the form as long as we have a URL — let confidence be informational only
+      if (payload.imageUrl && payload.category) {
         setSuggestion(payload as AiSuggestion);
         setCategory(payload.category);
       }
@@ -86,16 +87,26 @@ export default function ClosetPage() {
     data.set("category", category);
     data.set("imageUrl", suggestion.imageUrl);
     setSubmitting(true);
-    const res = await fetch("/api/items", { method: "POST", body: data });
-    if (res.ok) {
-      form.reset();
-      setSuggestion(null);
-      setPreview(null);
-      setCategory("short_sleeve");
-      if (fileRef.current) fileRef.current.value = "";
-      await refreshItems();
+    try {
+      const res = await fetch("/api/items", { method: "POST", body: data });
+      if (res.ok) {
+        form.reset();
+        setSuggestion(null);
+        setPreview(null);
+        setCategory("short_sleeve");
+        if (fileRef.current) fileRef.current.value = "";
+        await refreshItems();
+      } else {
+        const body = await res.json().catch(() => ({}));
+        console.error("save failed:", res.status, body);
+        alert(`Save failed: ${JSON.stringify(body?.error ?? res.status)}`);
+      }
+    } catch (err) {
+      console.error("save error:", err);
+      alert("Save failed — check the console for details.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   async function removeItem(id: number) {

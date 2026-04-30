@@ -70,13 +70,13 @@ export async function analyzeClothingImage(imageUrl: string): Promise<ClothingAn
       model: google("gemini-2.5-flash"),
       schema: geminiSchema,
       system:
-        "You are a clothing classification assistant. Analyze the clothing item in the image and return ONLY a JSON object — no markdown, no code blocks, no explanation. Look carefully for any brand logos, labels, or text on the item. If the image is unclear, return your best guess with a low confidence score.",
+        "You are a clothing classification assistant. Your job is to identify the clothing item in the photo — ignore the background entirely, whether it's carpet, floor, bed, or any surface. The item may be laid flat, hung up, or held. Always return your best classification. Only set confidence below 0.3 if there is genuinely no clothing item visible at all. Look carefully for brand logos, labels, or text printed on the item.",
       messages: [
         {
           role: "user",
           content: [
             { type: "image", image: new URL(imageUrl) },
-            { type: "text", text: "Classify this clothing item and identify the brand if visible." },
+            { type: "text", text: "What clothing item is this? Identify the brand if visible. Focus on the garment itself, not the background or surface it is resting on." },
           ],
         },
       ],
