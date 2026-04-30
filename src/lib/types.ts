@@ -17,15 +17,22 @@ export type ClothingItem = {
 
 export type TempBand = "freezing" | "cold" | "mild" | "warm";
 
+export type HourForecast = {
+  label: string;   // e.g. "9AM"
+  tempF: number;
+  rainPct: number;
+};
+
 export type WeatherSnapshot = {
   location: string;
   tempF: number;       // current / morning temperature
   highF: number;       // daily high — used for outfit band decisions
-  lowF: number;        // daily low — shown in UI
+  lowF: number;        // daily low
   condition: string;
-  willRain: boolean;   // precipitation probability ≥ 40 %
+  willRain: boolean;   // rain likely at any point during the day
   isCold: boolean;
   tempBand?: TempBand;
+  forecast?: HourForecast[];  // key hours for the rest of today
 };
 
 export type Outfit = {
